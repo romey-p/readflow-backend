@@ -36,6 +36,14 @@ class ResourceService:
             raise HTTPException(status_code=500, detail=f"이미지 업로드 실패: {str(e)}")
         
     @staticmethod
+    def upload_audio(file_data: bytes, folder: str = "readflow/audios") -> str:
+        try:
+            response = cloudinary.uploader.upload(file_data, folder=folder, unique_filename=True, resource_type="video")
+            return response.get("secure_url")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="오디오 업로드 실패: {str(e)}")
+        
+    @staticmethod
     def extract_layout(file_bytes: bytes, mime_type: str) -> dict:
         try:
             response = ai_client.models.generate_content(
@@ -57,7 +65,7 @@ class ResourceService:
         
     @classmethod
     def process_text_extraction_and_analysis(cls, file_bytes: bytes, mime_type: str) -> tuple[str, dict, list]:
-        cloudinary_url = cls.upload_image(file_bytes)
+        image_url = cls.upload_image(file_bytes)
         
         vlm_res = cls.extract_layout(file_bytes, mime_type)
         word_layouts = vlm_res.get("layout_coordinates", [])
@@ -69,11 +77,11 @@ class ResourceService:
             sentence_buckets[idx].append(word)
             
         analyzed_sentences = []
+
         for idx in sorted(sentence_buckets.keys()):
             reconstructed_text = " ".join(sentence_buckets[idx])
-            
             predicted_score, difficulty_level = analysis_service.predict_score(reconstructed_text)
-            
+
             analyzed_sentences.append({
                 "sentence_index": idx,
                 "sentence_text": reconstructed_text,
@@ -81,6 +89,6 @@ class ResourceService:
                 "difficulty_level": difficulty_level
             })
             
-        return cloudinary_url, vlm_res, analyzed_sentences
+        return image_url, vlm_res, analyzed_sentences
         
 resource_service = ResourceService()
