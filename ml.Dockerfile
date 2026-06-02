@@ -4,9 +4,9 @@ WORKDIR /workspace
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-COPY requirements-docker.txt .
+COPY requirements-ml.txt .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system -r requirements-docker.txt \
+    uv pip install --system -r requirements-ml.txt \
     --extra-index-url https://download.pytorch.org/whl/cpu \
     --index-strategy unsafe-best-match
 
