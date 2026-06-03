@@ -2,8 +2,7 @@ import hashlib
 import secrets
 from datetime import datetime
 from typing import Optional
-
-from app.core.db import get_db
+from pymongo.database import Database
 
 def normalize_email(email: str) -> str:
     return email.strip().lower()
@@ -16,8 +15,7 @@ def create_password_hash(password: str, salt: str) -> str:
         100000
     ).hex()
 
-def create_user(email: str, password: str) -> dict:
-    db = get_db()
+def create_user(db: Database, email: str, password: str) -> dict:
     users = db["users"]
 
     normalized_email = normalize_email(email)
@@ -43,8 +41,7 @@ def create_user(email: str, password: str) -> dict:
         "email": normalized_email
     }
 
-def authenticate_user(email: str, password: str) -> Optional[dict]:
-    db = get_db()
+def authenticate_user(db: Database, email: str, password: str) -> Optional[dict]:
     users = db["users"]
 
     normalized_email = normalize_email(email)
