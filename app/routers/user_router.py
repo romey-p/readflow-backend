@@ -1,13 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from pymongo.database import Database
 from app.schemas.user_schema import UserSignupRequest, UserSignupResponse, UserLoginRequest, UserLoginResponse
 from app.services.user_service import create_user, authenticate_user, create_access_token
+from app.core.db import get_db
 
 router = APIRouter(prefix="/api", tags=["Users"])
 
 @router.post("/users", response_model=UserSignupResponse)
-def signup(payload: UserSignupRequest):
+def signup(payload: UserSignupRequest, db: Database = Depends(get_db)):
     try:
-        user = create_user(payload.email, payload.password)
+        user = create_user(db, payload.email, payload.password)
         return {
             "success": True,
             "user_id": user["user_id"]
@@ -16,8 +18,8 @@ def signup(payload: UserSignupRequest):
         raise HTTPException(status_code=400, detail=str(e))
     
 @router.post("/auth/login", response_model=UserLoginResponse)
-def login(payload: UserLoginRequest):
-    user = authenticate_user(payload.email, payload.password)
+def login(payload: UserLoginRequest, db: Database = Depends(get_db)):
+    user = authenticate_user(db, payload.email, payload.password)
     if not user:
         raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
     
