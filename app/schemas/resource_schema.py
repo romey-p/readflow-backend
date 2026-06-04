@@ -17,6 +17,10 @@ class SentenceInfo(BaseModel):
     difficulty_score: float
     difficulty_level: int
 
+class TimestampInfo(BaseModel):
+    mark_name: str
+    time_seconds: float
+
 class ResourceInfoResponse(BaseModel):
     resource_id: str
     user_id: str
@@ -26,6 +30,7 @@ class ResourceInfoResponse(BaseModel):
     speaking_rate: Optional[Dict[str, str]] = None
     duration_seconds: Optional[float] = None
     sentences: List[SentenceInfo]
+    timestamps: Optional[List[TimestampInfo]] = None
     created_at: datetime
 
 class WordCoordinate(BaseModel):
