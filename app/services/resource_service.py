@@ -152,6 +152,7 @@ class ResourceService:
             "speaking_rate": tts_output.get("speaking_rate", "adaptive"),
             "duration_seconds": tts_output.get("duration_seconds", 0.0),
             "sentences": sentences,
+            "timestamps": tts_output.get("timestamps", []),
             "created_at": doc.get("created_at")
         }
     
